@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('socios', function (Blueprint $table) {
-            $table->unique('email');
-            $table->unique('dni');
+        Schema::table('talleres', function (Blueprint $table) {
+            $table->softDeletes(); // esto crea el campo deleted_at nullable
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('socios', function (Blueprint $table) {
-            //
+        Schema::table('talleres', function (Blueprint $table) {
+            $table->dropSoftDeletes();
         });
     }
 };

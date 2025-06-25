@@ -71,4 +71,24 @@ class TallerController extends Controller
 
         return response()->json(['message' => 'Taller eliminado']);
     }
+
+    // GET /api/talleres/inactivos
+    public function inactivos()
+    {
+        return response()->json(Taller::onlyTrashed()->get());
+    }
+
+    // PUT /api/talleres/{id}/restaurar
+    public function restore($id)
+    {
+        $taller = Taller::onlyTrashed()->find($id);
+
+        if (!$taller) {
+            return response()->json(['message' => 'Taller no encontrado o no está eliminado'], 404);
+        }
+
+        $taller->restore();
+
+        return response()->json(['message' => 'Taller restaurado con éxito']);
+    }
 }
