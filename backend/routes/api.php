@@ -6,5 +6,3 @@ use App\Http\Controllers\TallerController;
 
 Route::apiResource('socios', SocioController::class);
 Route::apiResource('talleres', TallerController::class);
-
-?>

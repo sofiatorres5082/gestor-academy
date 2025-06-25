@@ -2,47 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Taller;
 use Illuminate\Http\Request;
 
 class TallerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Taller::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show($id)
+    {
+        $taller = Taller::find($id);
+
+        if (!$taller) {
+            return response()->json(['message' => 'Taller no encontrado'], 404);
+        }
+
+        return response()->json($taller);
+    }
+
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nombre' => 'required|string',
+            'descripcion' => 'nullable|string',
+            'profesor' => 'nullable|string',
+            'dias' => 'nullable|string',
+            'horario' => 'nullable|string',
+        ]);
+
+        $taller = Taller::create($validated);
+
+        return response()->json($taller, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $taller = Taller::find($id);
+
+        if (!$taller) {
+            return response()->json(['message' => 'Taller no encontrado'], 404);
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'sometimes|string',
+            'descripcion' => 'nullable|string',
+            'profesor' => 'nullable|string',
+            'dias' => 'nullable|string',
+            'horario' => 'nullable|string',
+        ]);
+
+        $taller->update($validated);
+
+        return response()->json($taller);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $taller = Taller::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$taller) {
+            return response()->json(['message' => 'Taller no encontrado'], 404);
+        }
+
+        $taller->delete();
+
+        return response()->json(['message' => 'Taller eliminado']);
     }
 }
