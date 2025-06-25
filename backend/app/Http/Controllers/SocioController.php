@@ -10,7 +10,7 @@ class SocioController extends Controller
     // GET /api/socios
     public function index()
     {
-        return response()->json(Socio::all());
+        return response()->json(Socio::all()); // trae a los activos por defecto
     }
 
     // GET /api/socios/{id}
@@ -23,6 +23,13 @@ class SocioController extends Controller
         }
 
         return response()->json($socio);
+    }
+
+    // GET /api/socios/inactivos
+    public function inactivos()
+    {
+        $socios = Socio::onlyTrashed()->get();
+        return response()->json($socios);
     }
 
     // POST /api/socios
@@ -41,6 +48,21 @@ class SocioController extends Controller
 
         return response()->json($socio, 201);
     }
+
+    // PUT /api/socios/{id}/restaurar
+    public function restore($id)
+    {
+        $socio = Socio::onlyTrashed()->find($id);
+
+        if (!$socio) {
+            return response()->json(['message' => 'Socio no encontrado o no está eliminado'], 404);
+        }
+
+        $socio->restore();
+
+        return response()->json(['message' => 'Socio restaurado con éxito']);
+    }
+
 
     // PUT /api/socios/{id}
     public function update(Request $request, $id)
