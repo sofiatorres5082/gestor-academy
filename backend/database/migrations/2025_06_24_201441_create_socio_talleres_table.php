@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('socio_id')->constrained('socios')->onDelete('cascade');
             $table->foreignId('taller_id')->constrained('talleres')->onDelete('cascade');
+
             $table->date('fecha_inscripcion')->nullable();
             $table->timestamps();
+
+            $table->unique(['socio_id', 'taller_id']); // evita duplicados
         });
     }
 
@@ -25,7 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-       Schema::dropIfExists('socio_taller'); 
-
+        Schema::dropIfExists('socio_taller');
     }
 };

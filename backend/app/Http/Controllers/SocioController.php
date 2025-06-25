@@ -37,17 +37,38 @@ class SocioController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string',
-            'email' => 'required|email|unique:socios',
-            'dni' => 'required|unique:socios',
+            'email' => 'required|email',
+            'dni' => 'required',
             'telefono' => 'nullable|string',
             'direccion' => 'nullable|string',
             'fecha_nacimiento' => 'nullable|date',
         ]);
 
+        $socioEliminado = Socio::onlyTrashed()
+            ->where('email', $validated['email'])
+            ->orWhere('dni', $validated['dni'])
+            ->first();
+
+        if ($socioEliminado) {
+            $socioEliminado->restore();
+            $socioEliminado->update($validated);
+
+            return response()->json([
+                'message' => 'Socio restaurado y actualizado',
+                'socio' => $socioEliminado
+            ], 200);
+        }
+
+        $validated = $request->validate([
+            'email' => 'unique:socios',
+            'dni' => 'unique:socios',
+        ] + $validated);
+
         $socio = Socio::create($validated);
 
         return response()->json($socio, 201);
     }
+
 
     // PUT /api/socios/{id}/restaurar
     public function restore($id)
@@ -90,10 +111,14 @@ class SocioController extends Controller
     // DELETE /api/socios/{id}
     public function destroy($id)
     {
-        $socio = Socio::find($id);
+        $socio = Socio::withTrashed()->find($id);
 
         if (!$socio) {
             return response()->json(['message' => 'Socio no encontrado'], 404);
+        }
+
+        if ($socio->trashed()) {
+            return response()->json(['message' => 'El socio ya estaba eliminado'], 409);
         }
 
         $socio->delete();
