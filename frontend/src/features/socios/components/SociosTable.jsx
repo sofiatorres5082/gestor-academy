@@ -1,6 +1,6 @@
 import { Edit, Eye, Trash2, RotateCcw } from 'lucide-react';
 
-const SociosTable = ({ socios = [] }) => {
+const SociosTable = ({ socios = [], onEdit, onView, onDelete, onRestore }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -61,12 +61,14 @@ const SociosTable = ({ socios = [] }) => {
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center space-x-2">
                       <button 
+                        onClick={() => onEdit(socio)}
                         className="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-md transition-colors duration-150 cursor-pointer"
                         title="Editar socio"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button 
+                        onClick={() => onView(socio)}
                         className="inline-flex items-center p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-150 cursor-pointer"
                         title="Ver detalles"
                       >
@@ -74,6 +76,7 @@ const SociosTable = ({ socios = [] }) => {
                       </button>
                       {socio.deleted_at ? (
                         <button 
+                          onClick={() => onRestore(socio.id)}
                           className="inline-flex items-center p-1.5 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors duration-150 cursor-pointer"
                           title="Restaurar socio"
                         >
@@ -81,6 +84,7 @@ const SociosTable = ({ socios = [] }) => {
                         </button>
                       ) : (
                         <button 
+                          onClick={() => onDelete(socio.id)}
                           className="inline-flex items-center p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors duration-150 cursor-pointer"
                           title="Eliminar socio"
                         >

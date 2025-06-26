@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
-import { getSocios, getSociosInactivos } from "../services/socios";
+import {
+  getSocios,
+  getSociosInactivos,
+  actualizarSocio,
+  eliminarSocio,
+  restaurarSocio,
+} from "../services/socios";
 import SociosTable from "../components/SociosTable";
 import SocioFormModal from "../components/SocioFormModal";
-import { Toaster } from "react-hot-toast";
+import VerSocioModal from "../components/VerSocioModal";
+import ConfirmModal from "../components/ConfirmModal";
+import { Toaster, toast } from "react-hot-toast";
 
 export default function SociosPage() {
   const [socios, setSocios] = useState([]);
@@ -12,6 +20,11 @@ export default function SociosPage() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [ultimaPagina, setUltimaPagina] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [socioSeleccionado, setSocioSeleccionado] = useState(null);
+  const [editandoSocio, setEditandoSocio] = useState(null);
+  const [confirmarEliminacionId, setConfirmarEliminacionId] = useState(null);
+  const [confirmarRestauracionId, setConfirmarRestauracionId] = useState(null);
+  const [accionLoading, setAccionLoading] = useState(false);
 
   useEffect(() => {
     cargarSocios(paginaActual);
@@ -29,6 +42,7 @@ export default function SociosPage() {
       setUltimaPagina(response.last_page);
     } catch (error) {
       console.error("Error al cargar socios", error);
+      toast.error("Error al cargar socios");
     } finally {
       setLoading(false);
     }
@@ -62,9 +76,74 @@ export default function SociosPage() {
 
   const limpiarBusqueda = () => setBusqueda("");
 
+  const abrirModalVer = (socio) => {
+    setSocioSeleccionado(socio);
+  };
+  const cerrarModalVer = () => {
+    setSocioSeleccionado(null);
+  };
+
+  const abrirModalEditar = (socio) => {
+    setEditandoSocio(socio);
+    setModalAbierto(true);
+  };
+  const cerrarModalEditar = () => {
+    setEditandoSocio(null);
+    setModalAbierto(false);
+  };
+
+  const handleActualizarSocio = async (id, datosActualizados) => {
+    try {
+      await actualizarSocio(id, datosActualizados);
+      toast.success("Socio actualizado correctamente");
+      cerrarModalEditar();
+      cargarSocios(paginaActual);
+    } catch (error) {
+      console.error("Error al actualizar socio", error);
+      toast.error("Error al actualizar socio");
+    }
+  };
+
+  const handleEliminarSocio = (id) => {
+    setConfirmarEliminacionId(id);
+  };
+
+  const confirmarEliminar = async () => {
+    setAccionLoading(true);
+    try {
+      await eliminarSocio(confirmarEliminacionId);
+      toast.success("Socio eliminado correctamente");
+      setConfirmarEliminacionId(null);
+      cargarSocios(paginaActual);
+    } catch (error) {
+      console.error("Error al eliminar socio", error);
+      toast.error("Error al eliminar socio");
+    } finally {
+      setAccionLoading(false);
+    }
+  };
+
+  const handleRestaurarSocio = (id) => {
+    setConfirmarRestauracionId(id);
+  };
+
+  const confirmarRestaurar = async () => {
+    setAccionLoading(true);
+    try {
+      await restaurarSocio(confirmarRestauracionId);
+      toast.success("Socio restaurado correctamente");
+      setConfirmarRestauracionId(null);
+      cargarSocios(paginaActual);
+    } catch (error) {
+      console.error("Error al restaurar socio", error);
+      toast.error("Error al restaurar socio");
+    } finally {
+      setAccionLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
@@ -84,7 +163,6 @@ export default function SociosPage() {
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="bg-white p-4 rounded-lg shadow-sm border">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
@@ -121,7 +199,6 @@ export default function SociosPage() {
         </div>
       </div>
 
-      {/* Tabla */}
       {loading ? (
         <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -129,9 +206,14 @@ export default function SociosPage() {
         </div>
       ) : (
         <>
-          <SociosTable socios={sociosFiltrados} />
+          <SociosTable
+            socios={sociosFiltrados}
+            onView={abrirModalVer}
+            onEdit={abrirModalEditar}
+            onDelete={handleEliminarSocio}
+            onRestore={handleRestaurarSocio}
+          />
 
-          {/* Paginación */}
           {ultimaPagina > 1 && (
             <div className="flex justify-center mt-6 gap-2 flex-wrap items-center">
               <button
@@ -181,10 +263,46 @@ export default function SociosPage() {
 
       {modalAbierto && (
         <SocioFormModal
-          onClose={() => setModalAbierto(false)}
+          onClose={() => {
+            setModalAbierto(false);
+            setEditandoSocio(null);
+          }}
           onSocioCreado={cargarSocios}
+          socioEditando={editandoSocio}
+          onActualizar={handleActualizarSocio}
         />
       )}
+
+      {socioSeleccionado && (
+        <VerSocioModal socio={socioSeleccionado} onClose={cerrarModalVer} />
+      )}
+
+      {confirmarEliminacionId && (
+        <ConfirmModal
+          open={true}
+          onClose={() => setConfirmarEliminacionId(null)}
+          onConfirm={confirmarEliminar}
+          loading={accionLoading}
+          titulo="Eliminar socio"
+          mensaje="¿Estás seguro que querés eliminar este socio?"
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+        />
+      )}
+
+      {confirmarRestauracionId && (
+        <ConfirmModal
+          open={true}
+          onClose={() => setConfirmarRestauracionId(null)}
+          onConfirm={confirmarRestaurar}
+          loading={accionLoading}
+          titulo="Restaurar socio"
+          mensaje="¿Querés restaurar este socio?"
+          confirmText="Restaurar"
+          cancelText="Cancelar"
+        />
+      )}
+
       <Toaster position="top-right" />
     </div>
   );

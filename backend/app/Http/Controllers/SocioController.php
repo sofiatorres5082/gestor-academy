@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Socio;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreSocioRequest;
+use App\Http\Requests\UpdateSocioRequest;
+
 
 class SocioController extends Controller
 {
@@ -17,15 +20,8 @@ class SocioController extends Controller
     }
 
 
-    // GET /api/socios/{id}
-    public function show($id)
+    public function show(Socio $socio)
     {
-        $socio = Socio::find($id);
-
-        if (!$socio) {
-            return response()->json(['message' => 'Socio no encontrado'], 404);
-        }
-
         return response()->json($socio);
     }
 
@@ -38,21 +34,10 @@ class SocioController extends Controller
     }
 
 
-    public function store(Request $request)
+    public function store(StoreSocioRequest $request)
     {
-        $rules = [
-            'nombre' => 'required|string',
-            'email' => 'required|email|unique:socios,email',
-            'dni' => 'required|unique:socios,dni',
-            'telefono' => 'nullable|string',
-            'direccion' => 'nullable|string',
-            'fecha_nacimiento' => 'nullable|date',
-        ];
+        $validated = $request->validated();
 
-        // Validamos todo junto:
-        $validated = $request->validate($rules);
-
-        // Buscamos socio eliminado con email o dni iguales (soft deleted)
         $socioEliminado = Socio::onlyTrashed()
             ->where('email', $validated['email'])
             ->orWhere('dni', $validated['dni'])
@@ -61,26 +46,22 @@ class SocioController extends Controller
         if ($socioEliminado) {
             $socioEliminado->restore();
             $socioEliminado->update($validated);
-
             return response()->json([
                 'message' => 'Socio restaurado y actualizado',
                 'socio' => $socioEliminado
-            ], 200);
+            ]);
         }
 
-        // Creamos nuevo socio
         $socio = Socio::create($validated);
 
         return response()->json($socio, 201);
     }
 
-    // PUT /api/socios/{id}/restaurar
-    public function restore($id)
-    {
-        $socio = Socio::onlyTrashed()->find($id);
 
-        if (!$socio) {
-            return response()->json(['message' => 'Socio no encontrado o no está eliminado'], 404);
+    public function restore(Socio $socio)
+    {
+        if (!$socio->trashed()) {
+            return response()->json(['message' => 'Socio no eliminado'], 404);
         }
 
         $socio->restore();
@@ -88,39 +69,27 @@ class SocioController extends Controller
         return response()->json(['message' => 'Socio restaurado con éxito']);
     }
 
-
-    // PUT /api/socios/{id}
-    public function update(Request $request, $id)
+    public function update(UpdateSocioRequest $request, $id)
     {
-        $socio = Socio::find($id);
+        try {
+            $socio = Socio::withTrashed()->findOrFail($id);
 
-        if (!$socio) {
-            return response()->json(['message' => 'Socio no encontrado'], 404);
+            $validated = $request->validated();
+            $socio->update($validated);
+
+            return response()->json($socio);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'linea' => $e->getLine(),
+                'archivo' => $e->getFile(),
+            ], 500);
         }
-
-        $validated = $request->validate([
-            'nombre' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:socios,email,' . $socio->id,
-            'dni' => 'sometimes|unique:socios,dni,' . $socio->id,
-            'telefono' => 'nullable|string',
-            'direccion' => 'nullable|string',
-            'fecha_nacimiento' => 'nullable|date',
-        ]);
-
-        $socio->update($validated);
-
-        return response()->json($socio);
     }
 
-    // DELETE /api/socios/{id}
-    public function destroy($id)
+
+    public function destroy(Socio $socio)
     {
-        $socio = Socio::withTrashed()->find($id);
-
-        if (!$socio) {
-            return response()->json(['message' => 'Socio no encontrado'], 404);
-        }
-
         if ($socio->trashed()) {
             return response()->json(['message' => 'El socio ya estaba eliminado'], 409);
         }
