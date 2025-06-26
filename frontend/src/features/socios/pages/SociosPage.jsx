@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getSocios, getSociosInactivos } from "../services/socios";
 import SociosTable from "../components/SociosTable";
+import SocioFormModal from "../components/SocioFormModal";
+import { Toaster } from "react-hot-toast";
 
 export default function SociosPage() {
   const [socios, setSocios] = useState([]);
@@ -9,6 +11,7 @@ export default function SociosPage() {
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
   const [ultimaPagina, setUltimaPagina] = useState(1);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   useEffect(() => {
     cargarSocios(paginaActual);
@@ -72,7 +75,10 @@ export default function SociosPage() {
             {busqueda && ` - Buscando: "${busqueda}"`}
           </p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer">
+        <button
+          onClick={() => setModalAbierto(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+        >
           <span className="text-lg">+</span>
           Crear Socio
         </button>
@@ -172,6 +178,14 @@ export default function SociosPage() {
           )}
         </>
       )}
+
+      {modalAbierto && (
+        <SocioFormModal
+          onClose={() => setModalAbierto(false)}
+          onSocioCreado={cargarSocios}
+        />
+      )}
+      <Toaster position="top-right" />
     </div>
   );
 }

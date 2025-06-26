@@ -7,27 +7,20 @@ const SociosTable = ({ socios = [] }) => {
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Nombre
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Teléfono
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Acciones
-              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DNI</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teléfono</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Dirección</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nacimiento</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {socios.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                       <Eye className="w-6 h-6 text-gray-400" />
@@ -39,14 +32,15 @@ const SociosTable = ({ socios = [] }) => {
             ) : (
               socios.map((socio) => (
                 <tr key={socio.id} className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{socio.nombre}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{socio.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{socio.telefono || "—"}</div>
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{socio.nombre}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.dni}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.telefono || "—"}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.direccion || "—"}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {socio.fecha_nacimiento
+                      ? new Date(socio.fecha_nacimiento).toLocaleDateString()
+                      : "—"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

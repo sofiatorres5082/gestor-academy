@@ -38,18 +38,21 @@ class SocioController extends Controller
     }
 
 
-    // POST /api/socios
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'nombre' => 'required|string',
-            'email' => 'required|email',
-            'dni' => 'required',
+            'email' => 'required|email|unique:socios,email',
+            'dni' => 'required|unique:socios,dni',
             'telefono' => 'nullable|string',
             'direccion' => 'nullable|string',
             'fecha_nacimiento' => 'nullable|date',
-        ]);
+        ];
 
+        // Validamos todo junto:
+        $validated = $request->validate($rules);
+
+        // Buscamos socio eliminado con email o dni iguales (soft deleted)
         $socioEliminado = Socio::onlyTrashed()
             ->where('email', $validated['email'])
             ->orWhere('dni', $validated['dni'])
@@ -65,16 +68,11 @@ class SocioController extends Controller
             ], 200);
         }
 
-        $validated = $request->validate([
-            'email' => 'unique:socios',
-            'dni' => 'unique:socios',
-        ] + $validated);
-
+        // Creamos nuevo socio
         $socio = Socio::create($validated);
 
         return response()->json($socio, 201);
     }
-
 
     // PUT /api/socios/{id}/restaurar
     public function restore($id)

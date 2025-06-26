@@ -11,3 +11,8 @@ export const getSociosInactivos = async (page = 1) => {
   const response = await axios.get(`${API_URL}/socios/inactivos?page=${page}`);
   return response.data;
 };
+
+export const crearSocio = async (nuevoSocio) => {
+  const response = await axios.post(`${API_URL}/socios`, nuevoSocio);
+  return response.data;
+};
