@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 
 class SocioController extends Controller
 {
+
     // GET /api/socios
     public function index()
     {
-        return response()->json(Socio::all()); // trae a los activos por defecto
+        return Socio::whereNull('deleted_at') // solo activos si usás soft delete
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // 10 por página
     }
+
 
     // GET /api/socios/{id}
     public function show($id)
@@ -28,9 +32,11 @@ class SocioController extends Controller
     // GET /api/socios/inactivos
     public function inactivos()
     {
-        $socios = Socio::onlyTrashed()->get();
-        return response()->json($socios);
+        return Socio::onlyTrashed()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
     }
+
 
     // POST /api/socios
     public function store(Request $request)
