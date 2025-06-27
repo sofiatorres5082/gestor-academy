@@ -4,6 +4,7 @@ import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import SociosPage from "../features/socios/pages/SociosPage";
 import TalleresPage from "../features/talleres/pages/TalleresPage";
+import InscripcionesPage from "../features/inscripciones/pages/InscripcionesPage";
 
 const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: "socios", element: <SociosPage /> },
       { path: "talleres", element: <TalleresPage /> },
+      { path: "inscripciones", element: <InscripcionesPage /> },
     ],
   },
   {
