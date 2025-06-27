@@ -20,10 +20,17 @@ class SocioController extends Controller
     }
 
 
-    public function show(Socio $socio)
+    public function show($id)
     {
+        $socio = Socio::find($id);
+
+        if (!$socio) {
+            return response()->json(['message' => 'Socio no encontrado'], 404);
+        }
+
         return response()->json($socio);
     }
+
 
     // GET /api/socios/inactivos
     public function inactivos()
@@ -58,16 +65,19 @@ class SocioController extends Controller
     }
 
 
-    public function restore(Socio $socio)
+    public function restore($id)
     {
-        if (!$socio->trashed()) {
-            return response()->json(['message' => 'Socio no eliminado'], 404);
+        $socio = Socio::onlyTrashed()->find($id);
+
+        if (!$socio) {
+            return response()->json(['message' => 'Socio no encontrado o no está eliminado'], 404);
         }
 
         $socio->restore();
 
         return response()->json(['message' => 'Socio restaurado con éxito']);
     }
+
 
     public function update(UpdateSocioRequest $request, $id)
     {
@@ -86,7 +96,6 @@ class SocioController extends Controller
             ], 500);
         }
     }
-
 
     public function destroy(Socio $socio)
     {

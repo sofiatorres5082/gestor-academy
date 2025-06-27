@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 
 class TallerController extends Controller
 {
+    // GET /api/talleres
     public function index()
     {
-        return response()->json(Taller::all());
+        return Taller::whereNull('deleted_at') // solo activos si usás soft delete
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // 10 por página
     }
 
     public function show($id)
@@ -21,6 +24,14 @@ class TallerController extends Controller
         }
 
         return response()->json($taller);
+    }
+
+    // GET /api/talleres/inactivos
+    public function inactivos()
+    {
+        return Taller::onlyTrashed()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
     }
 
     public function store(Request $request)
@@ -70,12 +81,6 @@ class TallerController extends Controller
         $taller->delete();
 
         return response()->json(['message' => 'Taller eliminado']);
-    }
-
-    // GET /api/talleres/inactivos
-    public function inactivos()
-    {
-        return response()->json(Taller::onlyTrashed()->get());
     }
 
     // PUT /api/talleres/{id}/restaurar

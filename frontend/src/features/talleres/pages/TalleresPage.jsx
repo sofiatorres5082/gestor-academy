@@ -1,60 +1,60 @@
 import { useEffect, useState } from "react";
 import {
-  getSocios,
-  getSociosInactivos,
-  actualizarSocio,
-  eliminarSocio,
-  restaurarSocio,
-} from "../services/socios";
-import SociosTable from "../components/SociosTable";
-import SocioFormModal from "../components/SocioFormModal";
-import VerSocioModal from "../components/VerSocioModal";
+  getTalleres,
+  getTalleresInactivos,
+  actualizarTaller,
+  eliminarTaller,
+  restaurarTaller,
+  crearTaller,
+} from "../services/talleres";
+import TalleresTable from "../components/TalleresTable";
+import TallerFormModal from "../components/TalleresFormModal";
 import ConfirmModal from "../../../components/ConfirmModal";
 import { Toaster, toast } from "react-hot-toast";
 
-export default function SociosPage() {
-  const [socios, setSocios] = useState([]);
+export default function TalleresPage() {
+  const [talleres, setTalleres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mostrarInactivos, setMostrarInactivos] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
   const [ultimaPagina, setUltimaPagina] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [socioSeleccionado, setSocioSeleccionado] = useState(null);
-  const [editandoSocio, setEditandoSocio] = useState(null);
+  const [editandoTaller, setEditandoTaller] = useState(null);
   const [confirmarEliminacionId, setConfirmarEliminacionId] = useState(null);
   const [confirmarRestauracionId, setConfirmarRestauracionId] = useState(null);
   const [accionLoading, setAccionLoading] = useState(false);
+  const [totalResultados, setTotalResultados] = useState(0);
+
 
   useEffect(() => {
-    cargarSocios(paginaActual);
+    cargarTalleres(paginaActual);
   }, [mostrarInactivos, paginaActual]);
 
-  const cargarSocios = async (page = 1) => {
+  const cargarTalleres = async (page = 1) => {
     setLoading(true);
     try {
       const response = mostrarInactivos
-        ? await getSociosInactivos(page)
-        : await getSocios(page);
+        ? await getTalleresInactivos(page)
+        : await getTalleres(page);
 
-      setSocios(response.data);
+      setTalleres(response.data);
       setPaginaActual(response.current_page);
       setUltimaPagina(response.last_page);
     } catch (error) {
-      console.error("Error al cargar socios", error);
-      toast.error("Error al cargar socios");
+      console.error("Error al cargar talleres", error);
+      toast.error("Error al cargar talleres");
     } finally {
       setLoading(false);
     }
   };
 
-  const sociosFiltrados = socios.filter((socio) => {
+  const talleresFiltrados = talleres.filter((taller) => {
     if (!busqueda.trim()) return true;
     const termino = busqueda.toLowerCase().trim();
     return (
-      socio.nombre?.toLowerCase().includes(termino) ||
-      socio.email?.toLowerCase().includes(termino) ||
-      socio.telefono?.includes(termino)
+      (taller.nombre?.toLowerCase().includes(termino)) ||
+      (taller.profesor?.toLowerCase().includes(termino))
     );
   });
 
@@ -76,67 +76,71 @@ export default function SociosPage() {
 
   const limpiarBusqueda = () => setBusqueda("");
 
-  const abrirModalVer = (socio) => {
-    setSocioSeleccionado(socio);
-  };
-  const cerrarModalVer = () => {
-    setSocioSeleccionado(null);
-  };
-
-  const abrirModalEditar = (socio) => {
-    setEditandoSocio(socio);
+  const abrirModalCrear = () => {
+    setEditandoTaller(null);
     setModalAbierto(true);
   };
-  const cerrarModalEditar = () => {
-    setEditandoSocio(null);
+
+  const abrirModalEditar = (taller) => {
+    setEditandoTaller(taller);
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setEditandoTaller(null);
     setModalAbierto(false);
   };
 
-  const handleActualizarSocio = async (id, datosActualizados) => {
+  const handleGuardarTaller = async (data) => {
     try {
-      await actualizarSocio(id, datosActualizados);
-      toast.success("Socio actualizado correctamente");
-      cerrarModalEditar();
-      cargarSocios(paginaActual);
+      if (editandoTaller) {
+        await actualizarTaller(editandoTaller.id, data);
+        toast.success("Taller actualizado correctamente");
+      } else {
+        await crearTaller(data);
+        toast.success("Taller creado correctamente");
+      }
+      cerrarModal();
+      cargarTalleres(paginaActual);
     } catch (error) {
-      console.error("Error al actualizar socio", error);
-      toast.error("Error al actualizar socio");
+      console.error("Error al guardar taller", error);
+      toast.error("Error al guardar taller");
     }
   };
 
-  const handleEliminarSocio = (id) => {
+  const handleEliminarTaller = (id) => {
     setConfirmarEliminacionId(id);
   };
 
   const confirmarEliminar = async () => {
     setAccionLoading(true);
     try {
-      await eliminarSocio(confirmarEliminacionId);
-      toast.success("Socio eliminado correctamente");
+      await eliminarTaller(confirmarEliminacionId);
+      toast.success("Taller eliminado correctamente");
       setConfirmarEliminacionId(null);
-      cargarSocios(paginaActual);
+      cargarTalleres(paginaActual);
     } catch (error) {
-      console.error("Error al eliminar socio", error);
-      toast.error("Error al eliminar socio");
+      console.error("Error al eliminar taller", error);
+      toast.error("Error al eliminar taller");
     } finally {
       setAccionLoading(false);
     }
   };
 
-  const handleRestaurarSocio = (id) => {
+  const handleRestaurarTaller = (id) => {
     setConfirmarRestauracionId(id);
   };
 
   const confirmarRestaurar = async () => {
     setAccionLoading(true);
     try {
-      await restaurarSocio(confirmarRestauracionId);
-      toast.success("Socio restaurado correctamente");
+      await restaurarTaller(confirmarRestauracionId);
+      toast.success("Taller restaurado correctamente");
       setConfirmarRestauracionId(null);
-      cargarSocios(paginaActual);
+      cargarTalleres(paginaActual);
     } catch (error) {
-      console.error("Error al restaurar socio", error);
-      toast.error("Error al restaurar socio");
+      console.error("Error al restaurar taller", error);
+      toast.error("Error al restaurar taller");
     } finally {
       setAccionLoading(false);
     }
@@ -147,19 +151,19 @@ export default function SociosPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Gestión de Socios
+            Gestión de Talleres
           </h1>
           <p className="text-sm text-gray-600 mt-1">
-            {mostrarInactivos ? "Socios inactivos" : "Socios activos"}
+            {mostrarInactivos ? "Talleres inactivos" : "Talleres activos"}
             {busqueda && ` - Buscando: "${busqueda}"`}
           </p>
         </div>
         <button
-          onClick={() => setModalAbierto(true)}
+          onClick={abrirModalCrear}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
         >
           <span className="text-lg">+</span>
-          Crear Socio
+          Crear Taller
         </button>
       </div>
 
@@ -168,7 +172,7 @@ export default function SociosPage() {
           <div className="flex-1 relative">
             <input
               type="text"
-              placeholder="Buscar por nombre, email o teléfono..."
+              placeholder="Buscar por nombre o profesor..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -198,16 +202,15 @@ export default function SociosPage() {
       {loading ? (
         <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">Cargando socios...</p>
+          <p className="mt-2 text-gray-600">Cargando talleres...</p>
         </div>
       ) : (
         <>
-          <SociosTable
-            socios={sociosFiltrados}
-            onView={abrirModalVer}
+          <TalleresTable
+            talleres={talleresFiltrados}
             onEdit={abrirModalEditar}
-            onDelete={handleEliminarSocio}
-            onRestore={handleRestaurarSocio}
+            onDelete={handleEliminarTaller}
+            onRestore={handleRestaurarTaller}
           />
 
           {ultimaPagina > 1 && (
@@ -258,19 +261,11 @@ export default function SociosPage() {
       )}
 
       {modalAbierto && (
-        <SocioFormModal
-          onClose={() => {
-            setModalAbierto(false);
-            setEditandoSocio(null);
-          }}
-          onSocioCreado={cargarSocios}
-          socioEditando={editandoSocio}
-          onActualizar={handleActualizarSocio}
+        <TallerFormModal
+          onClose={cerrarModal}
+          tallerEditando={editandoTaller}
+          onGuardar={handleGuardarTaller}
         />
-      )}
-
-      {socioSeleccionado && (
-        <VerSocioModal socio={socioSeleccionado} onClose={cerrarModalVer} />
       )}
 
       {confirmarEliminacionId && (
@@ -279,8 +274,8 @@ export default function SociosPage() {
           onClose={() => setConfirmarEliminacionId(null)}
           onConfirm={confirmarEliminar}
           loading={accionLoading}
-          titulo="Eliminar socio"
-          mensaje="¿Estás seguro que querés eliminar este socio?"
+          titulo="Eliminar taller"
+          mensaje="¿Estás seguro que querés eliminar este taller?"
           confirmText="Eliminar"
           cancelText="Cancelar"
         />
@@ -292,8 +287,8 @@ export default function SociosPage() {
           onClose={() => setConfirmarRestauracionId(null)}
           onConfirm={confirmarRestaurar}
           loading={accionLoading}
-          titulo="Restaurar socio"
-          mensaje="¿Querés restaurar este socio?"
+          titulo="Restaurar taller"
+          mensaje="¿Querés restaurar este taller?"
           confirmText="Restaurar"
           cancelText="Cancelar"
         />

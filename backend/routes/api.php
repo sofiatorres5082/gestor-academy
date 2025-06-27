@@ -6,7 +6,7 @@ use App\Http\Controllers\TallerController;
 use App\Http\Controllers\SocioTallerController;
 
 Route::get('socios/inactivos', [SocioController::class, 'inactivos']);
-Route::put('socios/{socio}/restaurar', [SocioController::class, 'restore']);
+Route::put('socios/{id}/restaurar', [SocioController::class, 'restore']);
 Route::put('socios/{id}', [SocioController::class, 'update']);
 
 Route::get('talleres/inactivos', [TallerController::class, 'inactivos']);

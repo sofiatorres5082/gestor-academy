@@ -3,6 +3,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import SociosPage from "../features/socios/pages/SociosPage";
+import TalleresPage from "../features/talleres/pages/TalleresPage";
 
 const router = createBrowserRouter([
   {
@@ -11,6 +12,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: "socios", element: <SociosPage /> },
+      { path: "talleres", element: <TalleresPage /> },
     ],
   },
   {
