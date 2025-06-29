@@ -1,10 +1,16 @@
+import ResumenStats from '../components/ResumenStats';
+
 const Dashboard = () => {
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-      <p className="text-gray-600">
-        Bienvenida al sistema de gestión. Desde aquí vas a poder administrar los socios, talleres e inscripciones.
-      </p>
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
+          <p className="text-gray-600 mt-2">Gestiona socios, talleres e inscripciones desde aquí</p>
+        </div>
+
+        <ResumenStats />
+      </div>
     </div>
   );
 };

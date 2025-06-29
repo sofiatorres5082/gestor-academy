@@ -10,13 +10,11 @@ use App\Http\Requests\UpdateSocioRequest;
 
 class SocioController extends Controller
 {
-
-    // GET /api/socios
     public function index()
     {
-        return Socio::whereNull('deleted_at') // solo activos si usás soft delete
+        return Socio::whereNull('deleted_at')
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // 10 por página
+            ->paginate(10); 
     }
 
 
@@ -31,8 +29,6 @@ class SocioController extends Controller
         return response()->json($socio);
     }
 
-
-    // GET /api/socios/inactivos
     public function inactivos()
     {
         return Socio::onlyTrashed()

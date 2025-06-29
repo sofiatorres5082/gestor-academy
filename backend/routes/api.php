@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocioController;
 use App\Http\Controllers\TallerController;
 use App\Http\Controllers\SocioTallerController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('socios/inactivos', [SocioController::class, 'inactivos']);
 Route::put('socios/{id}/restaurar', [SocioController::class, 'restore']);
@@ -17,6 +18,8 @@ Route::post('inscripciones/{socioId}/{tallerId}', [SocioTallerController::class,
 Route::get('socios/{id}/talleres', [SocioTallerController::class, 'talleresDeSocio']);
 Route::get('talleres/{id}/socios', [SocioTallerController::class, 'sociosDeTaller']);
 Route::delete('/inscripciones/{socioId}/{tallerId}', [SocioTallerController::class, 'desinscribir']);
+
+Route::get('/admin/dashboard/resumen', [DashboardController::class, 'resumen']);
 
 Route::apiResource('socios', SocioController::class);
 Route::apiResource('talleres', TallerController::class);

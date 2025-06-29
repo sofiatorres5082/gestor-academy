@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class SocioTallerController extends Controller
 {
-    // POST /api/inscripciones
     public function inscribir($socioId, $tallerId)
     {
         $socio = Socio::find($socioId);
@@ -18,7 +17,6 @@ class SocioTallerController extends Controller
             return response()->json(['message' => 'Socio o taller no encontrado'], 404);
         }
 
-        // Verificar si ya está inscrito
         if ($socio->talleres()->where('taller_id', $tallerId)->exists()) {
             return response()->json(['message' => 'Este socio ya está inscrito en este taller'], 409);
         }
@@ -31,7 +29,6 @@ class SocioTallerController extends Controller
         return response()->json(['message' => 'Socio inscrito al taller con éxito']);
     }
 
-    // GET /api/socios/{id}/talleres
     public function talleresDeSocio($id)
     {
         $socio = Socio::with('talleres')->find($id);
@@ -43,7 +40,6 @@ class SocioTallerController extends Controller
         return response()->json($socio->talleres);
     }
 
-    // GET /api/talleres/{id}/socios
     public function sociosDeTaller($id)
     {
         $taller = Taller::with('socios')->find($id);
@@ -55,7 +51,6 @@ class SocioTallerController extends Controller
         return response()->json($taller->socios);
     }
 
-    // DELETE /api/inscripciones/{socio_id}/{taller_id}
     public function desinscribir($socioId, $tallerId)
     {
         $socio = Socio::find($socioId);
@@ -68,4 +63,5 @@ class SocioTallerController extends Controller
 
         return response()->json(['message' => 'Socio desinscrito del taller']);
     }
+
 }

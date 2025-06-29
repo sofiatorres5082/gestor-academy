@@ -11,6 +11,7 @@ import TalleresTable from "../components/TalleresTable";
 import TallerFormModal from "../components/TalleresFormModal";
 import ConfirmModal from "../../../components/ConfirmModal";
 import { Toaster, toast } from "react-hot-toast";
+import TallerSocios from "../components/TallerSocios";
 
 export default function TalleresPage() {
   const [talleres, setTalleres] = useState([]);
@@ -25,7 +26,6 @@ export default function TalleresPage() {
   const [confirmarRestauracionId, setConfirmarRestauracionId] = useState(null);
   const [accionLoading, setAccionLoading] = useState(false);
   const [totalResultados, setTotalResultados] = useState(0);
-
 
   useEffect(() => {
     cargarTalleres(paginaActual);
@@ -53,8 +53,8 @@ export default function TalleresPage() {
     if (!busqueda.trim()) return true;
     const termino = busqueda.toLowerCase().trim();
     return (
-      (taller.nombre?.toLowerCase().includes(termino)) ||
-      (taller.profesor?.toLowerCase().includes(termino))
+      taller.nombre?.toLowerCase().includes(termino) ||
+      taller.profesor?.toLowerCase().includes(termino)
     );
   });
 
@@ -259,6 +259,8 @@ export default function TalleresPage() {
           )}
         </>
       )}
+
+      <TallerSocios />
 
       {modalAbierto && (
         <TallerFormModal
