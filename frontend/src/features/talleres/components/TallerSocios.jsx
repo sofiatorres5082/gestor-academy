@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Users, Download } from 'lucide-react';
-import { getTalleres, getSociosDeTaller } from '../../dashboard/services/dashboard';
-import * as XLSX from 'xlsx';
+import { useState, useEffect } from "react";
+import { Users, Download } from "lucide-react";
+import {
+  getTalleres,
+  getSociosDeTaller,
+} from "../../dashboard/services/dashboard";
+import * as XLSX from "xlsx";
 
 const TallerSocios = () => {
   const [talleres, setTalleres] = useState([]);
-  const [selectedTaller, setSelectedTaller] = useState('');
+  const [selectedTaller, setSelectedTaller] = useState("");
   const [socios, setSocios] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,16 +29,28 @@ const TallerSocios = () => {
   }, [selectedTaller]);
 
   const exportarExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(socios);
+    const sociosFormateados = socios.map((s) => ({
+      Nombre: s.nombre,
+      Email: s.email,
+      DNI: s.dni || "—",
+      Teléfono: s.telefono || "—",
+      "Fecha de inscripción": s.fecha_inscripcion
+        ? new Date(s.fecha_inscripcion).toLocaleDateString("es-AR")
+        : "—",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(sociosFormateados);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Inscriptos');
-    XLSX.writeFile(wb, 'inscriptos.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, "Inscriptos");
+    XLSX.writeFile(wb, "inscriptos.xlsx");
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Socios por Taller</h2>
-      
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">
+        Socios por Taller
+      </h2>
+
       <div className="mb-6">
         <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
           Seleccionar Taller
@@ -85,26 +100,57 @@ const TallerSocios = () => {
                   <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                     <Users className="w-6 h-6 text-gray-400" />
                   </div>
-                  <p className="text-sm">No hay socios inscriptos en este taller</p>
+                  <p className="text-sm">
+                    No hay socios inscriptos en este taller
+                  </p>
                 </div>
               </div>
             ) : (
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DNI</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Teléfono</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Nombre
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      DNI
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Teléfono
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Fecha de inscripción
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {socios.map((socio) => (
-                    <tr key={socio.id} className="hover:bg-gray-50 transition-colors duration-150">
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{socio.nombre}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.dni || "—"}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{socio.telefono || "—"}</td>
+                    <tr
+                      key={socio.id}
+                      className="hover:bg-gray-50 transition-colors duration-150"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                        {socio.nombre}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {socio.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {socio.dni || "—"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {socio.telefono || "—"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {socio.fecha_inscripcion
+                          ? new Date(
+                              socio.fecha_inscripcion
+                            ).toLocaleDateString("es-AR")
+                          : "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

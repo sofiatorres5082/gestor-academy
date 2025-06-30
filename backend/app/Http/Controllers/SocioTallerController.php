@@ -40,6 +40,7 @@ class SocioTallerController extends Controller
         return response()->json($socio->talleres);
     }
 
+
     public function sociosDeTaller($id)
     {
         $taller = Taller::with('socios')->find($id);
@@ -48,7 +49,18 @@ class SocioTallerController extends Controller
             return response()->json(['message' => 'Taller no encontrado'], 404);
         }
 
-        return response()->json($taller->socios);
+        $socios = $taller->socios->map(function ($socio) {
+            return [
+                'id' => $socio->id,
+                'nombre' => $socio->nombre,
+                'email' => $socio->email,
+                'dni' => $socio->dni,
+                'telefono' => $socio->telefono,
+                'fecha_inscripcion' => $socio->pivot->fecha_inscripcion,
+            ];
+        });
+
+        return response()->json($socios);
     }
 
     public function desinscribir($socioId, $tallerId)
@@ -63,5 +75,4 @@ class SocioTallerController extends Controller
 
         return response()->json(['message' => 'Socio desinscrito del taller']);
     }
-
 }

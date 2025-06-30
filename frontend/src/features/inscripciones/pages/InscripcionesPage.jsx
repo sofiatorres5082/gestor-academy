@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Search,
-  User,
-  BookOpen,
-  Plus,
-  X,
-  Users,
-  Calendar,
-} from "lucide-react";
+import { Search, User, BookOpen, Plus, X, Users, Calendar } from "lucide-react";
 import {
   inscribirSocio,
   desinscribirSocio,
@@ -314,13 +306,6 @@ export default function InscripcionesPage() {
                                 >
                                   Quitar
                                 </button>
-                              </div>
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                <Calendar className="h-3 w-3" />
-                                <span>
-                                  Inscripto el{" "}
-                                  {formatearFecha(taller.fecha_inscripcion)}
-                                </span>
                               </div>
                             </div>
                           ))}

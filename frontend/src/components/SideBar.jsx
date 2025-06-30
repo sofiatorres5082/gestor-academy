@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -9,11 +9,31 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false); 
+  const [loading, setLoading] = useState(false);   
+
+  const { logoutUser } = useAuth();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await logoutUser();
+      navigate("/");
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+    } finally {
+      setLoading(false);
+      setShowModal(false);
+    }
+  };
 
   return (
     <>
@@ -23,7 +43,6 @@ export default function Sidebar() {
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
-
 
       <aside
         className={`
@@ -53,6 +72,7 @@ export default function Sidebar() {
               icon={<LayoutDashboard />}
               label="Dashboard"
               onClick={toggleSidebar}
+              end={true}
             />
             <SidebarItem
               to="/admin/socios"
@@ -76,25 +96,38 @@ export default function Sidebar() {
         </div>
 
         <div className="p-6 border-t border-gray-700">
-          <button className="flex items-center gap-3 hover:bg-[#26265a] px-3 py-2 rounded w-full cursor-pointer">
+          <button
+            onClick={() => setShowModal(true)} 
+            className="flex items-center gap-3 hover:bg-[#26265a] px-3 py-2 rounded w-full cursor-pointer"
+          >
             <LogOut size={20} />
             <span>Cerrar sesión</span>
           </button>
         </div>
       </aside>
+
+      <ConfirmModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleLogout}
+        titulo="Cerrar sesión"
+        mensaje="¿Estás seguro que querés cerrar sesión?"
+        confirmText="Cerrar sesión"
+        cancelText="Cancelar"
+        loading={loading}
+      />
     </>
   );
-};
+}
 
-const SidebarItem = ({ to, icon, label, onClick }) => (
+const SidebarItem = ({ to, icon, label, onClick, end }) => (
   <NavLink
     to={to}
     onClick={onClick}
+    end={end}
     className={({ isActive }) =>
       `flex items-center px-6 py-3 transition-colors ${
-        isActive
-          ? "bg-[#26265a]"
-          : "hover:bg-[#26265a]"
+        isActive ? "bg-[#26265a]" : "hover:bg-[#26265a]"
       }`
     }
   >

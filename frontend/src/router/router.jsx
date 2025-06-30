@@ -5,16 +5,27 @@ import NotFound from "../pages/NotFound";
 import SociosPage from "../features/socios/pages/SociosPage";
 import TalleresPage from "../features/talleres/pages/TalleresPage";
 import InscripcionesPage from "../features/inscripciones/pages/InscripcionesPage";
+import PrivateRoute from "../components/PrivateRoute";
+import LoginPage from "../features/auth/pages/LoginPage";
 
 const router = createBrowserRouter([
   {
-    path: "/admin",
-    element: <AdminLayout />,
+    path: "/",
+    element: <LoginPage />,
+  },
+  {
+    element: <PrivateRoute />, 
     children: [
-      { index: true, element: <Dashboard /> },
-      { path: "socios", element: <SociosPage /> },
-      { path: "talleres", element: <TalleresPage /> },
-      { path: "inscripciones", element: <InscripcionesPage /> },
+      {
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Dashboard /> },
+          { path: "socios", element: <SociosPage /> },
+          { path: "talleres", element: <TalleresPage /> },
+          { path: "inscripciones", element: <InscripcionesPage /> },
+        ],
+      },
     ],
   },
   {

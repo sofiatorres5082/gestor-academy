@@ -20,3 +20,8 @@ export const eliminarSocio = (id) =>
 
 export const restaurarSocio = (id) =>
   api.put(`/socios/${id}/restaurar`).then((res) => res.data);
+
+export const getTalleresDeSocio = async (id) => {
+  const response = await api.get(`/socios/${id}/talleres`);
+  return response.data;
+};
